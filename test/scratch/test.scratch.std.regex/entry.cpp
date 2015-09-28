@@ -6,9 +6,37 @@
 /* Pantheios header files - 1 */
 #include <pantheios/pan.hpp>
 
+/* libCLImate header files */
 #include <libclimate/main.hpp>
 
+/* CLASP header files */
+#include <systemtools/clasp/clasp.hpp>
+
+/* FastFormat header files */
+#if 0
+#include <fastformat/ff.hpp>
+#include <fastformat/sinks/ostream.hpp>
+#endif
+
+/* Pantheios header files - 2 */
+
+/* Standard C++ header files */
+#include <iostream>
 #include <regex>
+
+/* /////////////////////////////////////////////////////////////////////////
+ * constants
+ */
+
+static int const            verMajor        =   0;
+static int const            verMinor        =   0;
+static int const            verRevision     =   3;
+
+static char const* const    ToolName        =   "mtgrep";
+static char const* const    Summary         =   "Simple grep program";
+static char const* const    Copyright       =   "Copyright (c) Synesis Software Pty Ltd";
+static char const* const    Description     =   "simple grep test program";
+static char const* const    Usage           =   NULL;
 
 /* /////////////////////////////////////////////////////////////////////////
  * globals
@@ -27,6 +55,13 @@ clasp::alias_t const libCLImate_aliases[] =
 };
 
 /* /////////////////////////////////////////////////////////////////////////
+ * helper functions
+ */
+
+static void show_usage(clasp_arguments_t const* args);
+static void show_version(clasp_arguments_t const* args);
+
+/* /////////////////////////////////////////////////////////////////////////
  * main
  */
 
@@ -36,9 +71,51 @@ libCLImate_program_main_Cpp(
   clasp::arguments_t const* args
 )
 {
+    if(clasp::flag_specified(args, "--help"))
+    {
+        show_usage(args);
+        return EXIT_SUCCESS;
+    }
 
+    if(clasp::flag_specified(args, "--version"))
+    {
+        show_version(args);
+        return EXIT_SUCCESS;
+    }
+
+    clasp::verify_all_flags_and_options_are_recognised(args, libCLImate_aliases);
 
     return EXIT_SUCCESS;
+}
+
+/* /////////////////////////////////////////////////////////////////////////
+ * helper functions
+ */
+
+static void show_usage(clasp_arguments_t const* args)
+{
+    clasp_showUsage(
+        args
+    ,   libCLImate_aliases
+    ,   ToolName, Summary, Copyright, Description, Usage
+    ,   verMajor, verMinor, verRevision
+    ,   clasp_showHeaderByFILE, clasp_showBodyByFILE, stdout
+    ,   0
+    ,   0
+    ,   4
+    ,   0
+    );
+}
+
+static void show_version(clasp_arguments_t const* args)
+{
+    clasp_showVersion(
+        args
+    ,   ToolName
+    ,   verMajor, verMinor, verRevision
+    ,   clasp_showVersionByFILE, stdout
+    ,   0
+    );
 }
 
 /* ///////////////////////////// end of file //////////////////////////// */
