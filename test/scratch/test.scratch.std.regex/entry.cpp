@@ -55,13 +55,28 @@
 
 static int const          verMajor    = 0;
 static int const          verMinor    = 0;
-static int const          verRevision = 7;
+static int const          verRevision = 8;
 
 static char const* const  ToolName    = "mtgrep";
 static char const* const  Summary     = "Simple grep program";
 static char const* const  Copyright   = "Copyright (c) Synesis Software Pty Ltd";
 static char const* const  Description = "simple grep test program";
 static char const* const  Usage       = "mtgrep { --help | --version | <pattern>}";
+
+#ifdef STLSOFT_CF_ENUM_CLASS_SUPPORT
+enum class Flags : int
+#else
+struct Flags { enum
+#endif
+{
+
+  MTGREP_F_IGNORECASE         = 0x00000001,
+
+#ifdef STLSOFT_CF_ENUM_CLASS_SUPPORT
+#else
+};
+#endif
+};
 
 /* /////////////////////////////////////////////////////////////////////////
  * globals
@@ -81,6 +96,9 @@ clasp::alias_t const libCLImate_aliases[] =
   // program logic
 
   CLASP_GAP_SECTION("Matching Control:"),
+
+  CLASP_FLAG_ALIAS( "-y", "--ignore-case"),
+  CLASP_BIT_FLAG(   "-i", "--ignore-case", Flags::MTGREP_F_IGNORECASE, "Ignore case distinctions in both the PATTERN and the input files"),
 
 };
 
@@ -113,6 +131,10 @@ libCLImate_program_main_Cpp(
     return EXIT_SUCCESS;
   }
 
+  int flags = 0;
+
+  clasp_checkAllFlags(args, libCLImate_aliases, &flags);
+
   clasp::verify_all_flags_and_options_are_recognised(args, libCLImate_aliases);
 
   if(0 == args->numValues)
@@ -123,6 +145,11 @@ libCLImate_program_main_Cpp(
   }
 
   std::regex::flag_type   reflags = std::regex::flag_type(0);
+
+  if(Flags::MTGREP_F_IGNORECASE & flags)
+  {
+    reflags |= std::regex::icase;
+  }
 
   std::string const   pattern(args->values[0].value.ptr, args->values[0].value.len);
   std::regex const    re(pattern, reflags);
