@@ -55,7 +55,7 @@
 
 static int const          verMajor    = 0;
 static int const          verMinor    = 0;
-static int const          verRevision = 8;
+static int const          verRevision = 9;
 
 static char const* const  ToolName    = "mtgrep";
 static char const* const  Summary     = "Simple grep program";
@@ -71,6 +71,7 @@ struct Flags { enum
 {
 
   MTGREP_F_IGNORECASE         = 0x00000001,
+  MTGREP_F_WHOLELINE          = 0x00000002,
 
 #ifdef STLSOFT_CF_ENUM_CLASS_SUPPORT
 #else
@@ -100,6 +101,7 @@ clasp::alias_t const libCLImate_aliases[] =
   CLASP_FLAG_ALIAS( "-y", "--ignore-case"),
   CLASP_BIT_FLAG(   "-i", "--ignore-case", Flags::MTGREP_F_IGNORECASE, "Ignore case distinctions in both the PATTERN and the input files"),
 
+  CLASP_BIT_FLAG(   "-x", "--line-regexp", Flags::MTGREP_F_WHOLELINE, "Select only those matches that exactly match the whole line"),
 };
 
 /* /////////////////////////////////////////////////////////////////////////
@@ -144,7 +146,8 @@ libCLImate_program_main_Cpp(
     return EXIT_FAILURE;
   }
 
-  std::regex::flag_type   reflags = std::regex::flag_type(0);
+  std::regex::flag_type                 reflags = std::regex::flag_type(0);
+  std::regex_constants::match_flag_type maflags = std::regex_constants::match_default;
 
   if(Flags::MTGREP_F_IGNORECASE & flags)
   {
@@ -157,12 +160,17 @@ libCLImate_program_main_Cpp(
 
   for(; stlsoft::read_line(stdin, line); )
   {
-    if(std::regex_match(line, re))
+    bool matched =
+          (Flags::MTGREP_F_WHOLELINE & flags)
+            ? std::regex_match(line, re, maflags)
+            : std::regex_search(line, re, maflags)
+            ;
+
+    if(matched)
     {
       ff::writeln(std::cout, line);
     }
   }
-
 
   return EXIT_SUCCESS;
 }
