@@ -13,12 +13,13 @@
 #include <systemtools/clasp/clasp.hpp>
 
 /* FastFormat header files */
-#if 0
 #include <fastformat/ff.hpp>
 #include <fastformat/sinks/ostream.hpp>
-#endif
 
 /* Pantheios header files - 2 */
+
+/* STLSoft header files */
+#include <stlsoft/filesystem/read_line.hpp>
 
 /* Standard C++ header files */
 #include <iostream>
@@ -30,7 +31,7 @@
 
 static int const            verMajor        =   0;
 static int const            verMinor        =   0;
-static int const            verRevision     =   4;
+static int const            verRevision     =   5;
 
 static char const* const    ToolName        =   "mtgrep";
 static char const* const    Summary         =   "Simple grep program";
@@ -90,6 +91,18 @@ libCLImate_program_main_Cpp(
         ff::fmtln(std::cerr, "{0}: no pattern specified; use --help for usage\n", ToolName);
 
         return EXIT_FAILURE;
+    }
+
+    std::string const   pattern(args->values[0].value.ptr, args->values[0].value.len);
+    std::regex const    re(pattern);
+    std::string         line;
+
+    for(; stlsoft::read_line(stdin, line); )
+    {
+        if(std::regex_match(line, re))
+        {
+            ff::writeln(std::cout, line);
+        }
     }
 
 
