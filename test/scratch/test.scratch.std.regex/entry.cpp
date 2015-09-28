@@ -30,13 +30,13 @@
 
 static int const            verMajor        =   0;
 static int const            verMinor        =   0;
-static int const            verRevision     =   3;
+static int const            verRevision     =   4;
 
 static char const* const    ToolName        =   "mtgrep";
 static char const* const    Summary         =   "Simple grep program";
 static char const* const    Copyright       =   "Copyright (c) Synesis Software Pty Ltd";
 static char const* const    Description     =   "simple grep test program";
-static char const* const    Usage           =   NULL;
+static char const* const    Usage           =   "mtgrep { --help | --version | <pattern>}";
 
 /* /////////////////////////////////////////////////////////////////////////
  * globals
@@ -84,6 +84,14 @@ libCLImate_program_main_Cpp(
     }
 
     clasp::verify_all_flags_and_options_are_recognised(args, libCLImate_aliases);
+
+    if(0 == args->numValues)
+    {
+        ff::fmtln(std::cerr, "{0}: no pattern specified; use --help for usage\n", ToolName);
+
+        return EXIT_FAILURE;
+    }
+
 
     return EXIT_SUCCESS;
 }
