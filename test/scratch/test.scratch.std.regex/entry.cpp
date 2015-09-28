@@ -55,7 +55,7 @@
 
 static int const          verMajor    = 0;
 static int const          verMinor    = 0;
-static int const          verRevision = 6;
+static int const          verRevision = 7;
 
 static char const* const  ToolName    = "mtgrep";
 static char const* const  Summary     = "Simple grep program";
@@ -72,11 +72,15 @@ clasp::alias_t const libCLImate_aliases[] =
 {
   // standard flags
 
+  CLASP_GAP_SECTION("Standard Flags:"),
+
   CLASP_FLAG( NULL,   "--help", "displays this help and exits"),
   CLASP_FLAG( NULL,   "--version", "displays version information and exits"),
 
 
   // program logic
+
+  CLASP_GAP_SECTION("Matching Control:"),
 
 };
 
@@ -118,8 +122,10 @@ libCLImate_program_main_Cpp(
     return EXIT_FAILURE;
   }
 
+  std::regex::flag_type   reflags = std::regex::flag_type(0);
+
   std::string const   pattern(args->values[0].value.ptr, args->values[0].value.len);
-  std::regex const    re(pattern);
+  std::regex const    re(pattern, reflags);
   std::string         line;
 
   for(; stlsoft::read_line(stdin, line); )
@@ -149,7 +155,7 @@ static void show_usage(clasp_arguments_t const* args)
   , 0
   , 0
   , 4
-  , 0
+  , 1
   );
 }
 
