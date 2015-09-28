@@ -55,7 +55,7 @@
 
 static int const          verMajor    = 0;
 static int const          verMinor    = 0;
-static int const          verRevision = 9;
+static int const          verRevision = 10;
 
 static char const* const  ToolName    = "mtgrep";
 static char const* const  Summary     = "Simple grep program";
@@ -72,6 +72,7 @@ struct Flags { enum
 
   MTGREP_F_IGNORECASE         = 0x00000001,
   MTGREP_F_WHOLELINE          = 0x00000002,
+  MTGREP_F_INVERTMATCH        = 0x00000004,
 
 #ifdef STLSOFT_CF_ENUM_CLASS_SUPPORT
 #else
@@ -102,6 +103,8 @@ clasp::alias_t const libCLImate_aliases[] =
   CLASP_BIT_FLAG(   "-i", "--ignore-case", Flags::MTGREP_F_IGNORECASE, "Ignore case distinctions in both the PATTERN and the input files"),
 
   CLASP_BIT_FLAG(   "-x", "--line-regexp", Flags::MTGREP_F_WHOLELINE, "Select only those matches that exactly match the whole line"),
+
+  CLASP_BIT_FLAG(   "-v", "--invert-match", Flags::MTGREP_F_INVERTMATCH, "Invert the sense of matching, to select non-matching lines"),
 };
 
 /* /////////////////////////////////////////////////////////////////////////
@@ -165,6 +168,11 @@ libCLImate_program_main_Cpp(
             ? std::regex_match(line, re, maflags)
             : std::regex_search(line, re, maflags)
             ;
+
+    if(Flags::MTGREP_F_INVERTMATCH & flags)
+    {
+      matched = !matched;
+    }
 
     if(matched)
     {
